@@ -24,7 +24,6 @@ public class SpawnManager : MonoBehaviour
 
     public void Tick()
     {
-        Debug.Log("Tick");
         spawnTimer -= 1;
 
         if(activeFloatingTiles.Value == 0)

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4255438102449709356}
   - component: {fileID: 6295853958162779783}
   - component: {fileID: 1080894517414888135}
-  - component: {fileID: 8899939334550089999}
   m_Layer: 0
   m_Name: Purple
   m_TagString: Untagged
@@ -97,27 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileColour: 1
-  moveSideDuration: 0.25
-  moveDownDuration: 0.25
-  moveDownAcceleration: 0.7
   fadeDuration: 0.5
-  sideEase: 5
-  downEase: 6
-  turnDone:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11400000, guid: aa3fb62ace7ad4ac8a3db761ea94c132, type: 2}
-        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
-        m_MethodName: Raise
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
   GridAdd:
     m_PersistentCalls:
       m_Calls:
@@ -136,33 +115,6 @@ MonoBehaviour:
   grounded: 0
   turnAvailable: {fileID: 11400000, guid: 1d16d1cfe70f148ac838950863398ee3, type: 2}
   activeFloatingTiles: {fileID: 11400000, guid: 4e616a0e50fd64556af01165d3c71a40, type: 2}
-  tilesToMove: {fileID: 11400000, guid: c9a37a3d06fd648ab927098cda64410d, type: 2}
+  tilesToEndMove: {fileID: 11400000, guid: c9a37a3d06fd648ab927098cda64410d, type: 2}
   gridTiles: {fileID: 11400000, guid: 52c37599e72604d0885ed2d3f48d0fd0, type: 2}
---- !u!114 &8899939334550089999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8109144546356596741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 159efe4a58430492abda0102fd971831, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event: {fileID: 11400000, guid: 87744f9e835dd409fbc9f2e80bb5df2a, type: 2}
-  Response:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1080894517414888135}
-        m_TargetAssemblyTypeName: TileMove, Assembly-CSharp
-        m_MethodName: MoveInput
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  floatingTileRuntimeSet: {fileID: 11400000, guid: d7769bbc3c96747d8ad62b1abedd5cfe, type: 2}

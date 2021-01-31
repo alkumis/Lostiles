@@ -36,6 +36,8 @@ public class GridManager : MonoBehaviour
 
     private void CheckMatches(int column, int row, Colour colourToCheck)
     {
+        Debug.Log("CheckMatches column " + column + " row " + row + " colour " + colourToCheck);
+
         var matchingRows = new ArrayList
         {
             row
@@ -125,7 +127,7 @@ public class GridManager : MonoBehaviour
                             break;
 
                         case (CheckingType.Grounding):
-                            gridTiles.tileList[column][row].Tile.GetComponent<TileMove>().grounded = false;
+                            gridTiles.tileList[column][row].Tile.GetComponent<TileMove>().Reactivate();
                             gridTiles.tileList[column].Remove(row);
                             break;
                     }

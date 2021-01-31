@@ -51,8 +51,8 @@ MonoBehaviour:
   - {fileID: 7031867857654630601, guid: ced3e2b2847a249b79a63d53907516a5, type: 3}
   activeFloatingTiles: {fileID: 11400000, guid: 4e616a0e50fd64556af01165d3c71a40, type: 2}
   spawnTimer: 0
-  spawnMin: 4
-  spawnMax: 6
+  spawnMin: 3
+  spawnMax: 5
 --- !u!114 &-5984422758022476524
 MonoBehaviour:
   m_ObjectHideFlags: 0
