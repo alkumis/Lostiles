@@ -10,21 +10,20 @@ public class TileMove : MonoBehaviour
 
     public float fadeDuration;
 
-    public UnityEvent<int, int, GridTile> GridAdd;
+    public UnityEvent<GameObject> GridAdd;
+    public UnityEvent<int, int, GridTile> CheckMatch;
 
     public bool grounded = false;
 
-    public IntVariable activeFloatingTiles;
     public IntVariable tilesToEndMove;
 
     public GridTiles gridTiles;
 
     public GameObjectRuntimeSet floatingTileRuntimeSet;
+    public GameObjectRuntimeSet gridTileRuntimeSet;
 
     private void Awake()
     {
-        activeFloatingTiles.ApplyChange(1);
-
         if (!grounded)
         {
             floatingTileRuntimeSet.Add(this.gameObject);
@@ -32,68 +31,116 @@ public class TileMove : MonoBehaviour
 
         if (grounded)
         {
-            AddToGridTiles();
+            gridTileRuntimeSet.Add(this.gameObject);
         }
     }
 
     private void OnDisable()
     {
         floatingTileRuntimeSet.Remove(this.gameObject);
+        gridTileRuntimeSet.Remove(this.gameObject);
     }
 
-    public void AddToGridTiles()
+    public void AddToGridTiles(bool justStarted = false)
     {
         grounded = true;
-        activeFloatingTiles.ApplyChange(-1);
         floatingTileRuntimeSet.Remove(this.gameObject);
+        gridTileRuntimeSet.Add(this.gameObject);
         int column = (int)transform.position.x;
-        Debug.Log("Column " + column);
         int row = (int)transform.position.y;
-        Debug.Log("Row " + row);
         var thisTile = new GridTile(tileColour, this.gameObject);
-        Debug.Log("Colour " + tileColour);
 
-        GridAdd.Invoke(column, row, thisTile);
+        GridAdd.Invoke(this.gameObject);
+
+        if(!justStarted)
+        {
+            CheckMatch.Invoke(column, row, thisTile);
+        }
     }
 
-    public void MoveSide(int direction, float duration, Ease ease)
+    public GridTiles MoveSide(Direction direction, float duration, Ease ease, GridTiles tempGridTiles)
     {
-        int targetColumn = (int)transform.position.x + direction;
-        int targetRow = (int)transform.position.y;
+        int modifier = 0;
 
-        if (!gridTiles.tileList.ContainsKey(targetColumn) || gridTiles.tileList[targetColumn].ContainsKey(targetRow))
+        switch (direction)
         {
-            return;
+            case (Direction.Left):
+                modifier = -1;
+                break;
+            case (Direction.Right):
+                modifier = 1;
+                break;
+        }
+
+        int targetColumn = (int)transform.position.x + modifier;
+
+        int targetRow = (int)transform.position.y;
+        var gridTile = new GridTile(tileColour, this.gameObject);
+
+        Debug.Log("I am " + tileColour + " and I am going to MoveSide to " + targetColumn);
+
+        if (!tempGridTiles.tileList.ContainsKey(targetColumn))
+        {
+            Debug.Log("I couldn't move because the column does not exist");
+            if (!tempGridTiles.tileList.ContainsKey(targetColumn - modifier))
+            {
+                tempGridTiles.tileList.Add(targetColumn - modifier, new Dictionary<int, GridTile>() { { targetRow, gridTile } });
+            }
+            else
+            {
+                tempGridTiles.tileList[targetColumn - modifier].Add(targetRow, gridTile);
+            }
+            return tempGridTiles;
+        }
+
+        else if(tempGridTiles.tileList[targetColumn].ContainsKey(targetRow))
+        {
+            Debug.Log("I couldn't move because someone is there already");
+            tempGridTiles.tileList[targetColumn - modifier].Add(targetRow, gridTile);
+            return tempGridTiles;
         }
 
         Move(targetColumn, targetRow, duration, ease);
+
+        Debug.Log("I moved");
+
+        tempGridTiles.tileList[targetColumn].Add(targetRow, gridTile);
+        return tempGridTiles;
     }
 
-    public TileMove MoveCheck()
+    public GameObject DownCheck()
     {
-        Debug.Log("MoveCheck");
         int targetColumn = (int)transform.position.x;
         int targetRow = (int)transform.position.y - 1;
 
-        if (gridTiles.tileList[targetColumn].ContainsKey(targetRow) && !grounded)
+        Debug.Log("I am " + tileColour + " and I am going to MoveCheck for " + targetRow);
+
+        if (gridTiles.tileList.ContainsKey(targetColumn))
         {
-            return this;
+            if (gridTiles.tileList[targetColumn].ContainsKey(targetRow) && !grounded)
+            {
+                return this.gameObject;
+            }
         }
 
         return null;
     }
 
-    public TileMove MoveDown(float duration, Ease ease)
+    public GameObject MoveDown(float duration, Ease ease)
     {
-        Debug.Log("MoveDown");
         int targetColumn = (int)transform.position.x;
         int targetRow = (int)transform.position.y - 1;
 
+        Debug.Log("I am " + tileColour + " and I am going to MoveDown to " + targetRow);
+
         Move(targetColumn, targetRow, duration, ease);
 
-        if (gridTiles.tileList[targetColumn].ContainsKey(targetRow - 1) && !grounded)
+        if (gridTiles.tileList.ContainsKey(targetColumn))
         {
-            return this;
+            if (gridTiles.tileList[targetColumn].ContainsKey(targetRow - 1) && !grounded)
+            {
+                return this.gameObject;
+            }
         }
 
         return null;

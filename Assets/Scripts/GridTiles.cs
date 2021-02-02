@@ -11,5 +11,5 @@ using UnityEngine;
 [CreateAssetMenu]
 public class GridTiles : ScriptableObject
 {
-    public SortedList<int, SortedList<int, GridTile>> tileList = new SortedList<int, SortedList<int, GridTile>>();
+    public Dictionary<int, Dictionary<int, GridTile>> tileList = new Dictionary<int, Dictionary<int, GridTile>>();
 }

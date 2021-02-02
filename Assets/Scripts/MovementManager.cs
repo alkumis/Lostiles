@@ -20,15 +20,33 @@ public class MovementManager : MonoBehaviour
     public Ease downEase;
     public Ease rushEase;
 
+    public GridTiles gridTiles;
+
     public void MoveInput(Direction direction)
     {
+        //Debug.Log("Number of floating tiles: " + floatingTileRuntimeSet.Items.Count);
+
+        //Debug.Log("Column count: " + gridTiles.tileList.Keys.Count);
+
+        //foreach (var column in gridTiles.tileList.Keys)
+        //{
+        //    Debug.Log("Column: " + column);
+
+        //    Debug.Log("Row count: " + gridTiles.tileList[column].Keys.Count);
+
+        //    foreach(var row in gridTiles.tileList[column].Keys)
+        //    {
+        //        Debug.Log("Colour: " + gridTiles.tileList[column][row].Colour);
+        //    }
+        //}
+
         switch (direction)
         {
             case (Direction.Left):
-                StartCoroutine(MoveAll(-1));
+                StartCoroutine(MoveAll(direction));
                 break;
             case (Direction.Right):
-                StartCoroutine(MoveAll(1));
+                StartCoroutine(MoveAll(direction));
                 break;
             case (Direction.Down):
                 StartCoroutine(RushAll());
@@ -36,24 +54,44 @@ public class MovementManager : MonoBehaviour
         }
     }
 
-    IEnumerator MoveAll(int direction)
+    IEnumerator MoveAll(Direction direction)
     {
-        foreach (var floatingTile in floatingTileRuntimeSet.Items)
+        var tempGridTiles = new GridTiles();
+
+        foreach (var column in gridTiles.tileList.Keys)
         {
-            floatingTile.GetComponent<TileMove>().MoveSide(direction, moveSideDuration, sideEase);
+            foreach (var row in gridTiles.tileList[column].Keys)
+            {
+                if (!tempGridTiles.tileList.ContainsKey(column))
+                {
+                    tempGridTiles.tileList.Add(column, new Dictionary<int, GridTile>() { { row, gridTiles.tileList[column][row] } });
+                }
+                else
+                {
+                    tempGridTiles.tileList[column].Add(row, gridTiles.tileList[column][row]);
+                }
+            }
+        }
+
+        var floatingTileList = floatingTileRuntimeSet.Items;
+        floatingTileList = SortFloatingTiles(floatingTileList, direction);
+
+        foreach (var floatingTile in floatingTileList)
+        {
+            tempGridTiles = floatingTile.GetComponent<TileMove>().MoveSide(direction, moveSideDuration, sideEase, tempGridTiles);
         }
 
         yield return new WaitForSeconds(moveSideDuration);
 
-        var floatingTilesToDelete = CheckAndMoveDownAll(moveDownDuration, rushEase);
+        var floatingTilesToAddToGrid = CheckAndMoveDownAll(moveDownDuration, rushEase);
 
         yield return new WaitForSeconds(moveDownDuration);
 
-        if (floatingTilesToDelete != null)
+        if (floatingTilesToAddToGrid != null)
         {
-            if (floatingTilesToDelete.Count > 0)
+            if (floatingTilesToAddToGrid.Count > 0)
             {
-                ClearFloatingTiles(floatingTilesToDelete);
+                AddFloatingTilesToGrid(floatingTilesToAddToGrid);
             }
         }
 
@@ -71,15 +109,15 @@ public class MovementManager : MonoBehaviour
 
         while (turnAvailable.Value == false)
         {
-            var floatingTilesToDelete = CheckAndMoveDownAll(tempMoveDownDuration, rushEase);
+            var floatingTilesToAddToGrid = CheckAndMoveDownAll(tempMoveDownDuration, rushEase);
 
             yield return new WaitForSeconds(tempMoveDownDuration);
 
-            if(floatingTilesToDelete != null)
+            if(floatingTilesToAddToGrid != null)
             {
-                if(floatingTilesToDelete.Count > 0)
+                if(floatingTilesToAddToGrid.Count > 0)
                 {
-                    ClearFloatingTiles(floatingTilesToDelete);
+                    AddFloatingTilesToGrid(floatingTilesToAddToGrid);
                 }
             }
 
@@ -92,23 +130,23 @@ public class MovementManager : MonoBehaviour
         }
     }
 
-    private List<TileMove> CheckAndMoveDownAll(float duration, Ease ease)
+    private List<GameObject> CheckAndMoveDownAll(float duration, Ease ease)
     {
-        List<TileMove> floatingTilesToDelete = new List<TileMove>();
+        List<GameObject> floatingTilesToAddToGrid = new List<GameObject>();
 
         foreach (var floatingTile in floatingTileRuntimeSet.Items)
         {
-            var moveCheck = floatingTile.GetComponent<TileMove>().MoveCheck();
+            var moveCheck = floatingTile.GetComponent<TileMove>().DownCheck();
 
             if (moveCheck != null)
             {
-                floatingTilesToDelete.Add(moveCheck);
+                floatingTilesToAddToGrid.Add(moveCheck);
             }
         }
 
-        if (floatingTilesToDelete.Count > 0)
+        if (floatingTilesToAddToGrid.Count > 0)
         {
-            return floatingTilesToDelete;
+            return floatingTilesToAddToGrid;
         }
 
         foreach (var floatingTile in floatingTileRuntimeSet.Items)
@@ -117,34 +155,73 @@ public class MovementManager : MonoBehaviour
 
             if (moveCheck != null)
             {
-                floatingTilesToDelete.Add(moveCheck);
+                floatingTilesToAddToGrid.Add(moveCheck);
             }
         }
 
-        if (floatingTilesToDelete.Count > 0)
+        if (floatingTilesToAddToGrid.Count > 0)
         {
-            return floatingTilesToDelete;
+            return floatingTilesToAddToGrid;
         }
 
         return null;
     }
 
-    private void ClearFloatingTiles(List<TileMove> floatingTilesToDelete)
+    private void AddFloatingTilesToGrid(List<GameObject> floatingTilesToAddToGrid)
     {
-        floatingTilesToDelete.Sort(SortByHeight);
+        floatingTilesToAddToGrid = SortFloatingTiles(floatingTilesToAddToGrid, Direction.Down);
 
-        foreach (var floatingTileToDelete in floatingTilesToDelete)
+        foreach (var floatingTileToDelete in floatingTilesToAddToGrid)
         {
-            floatingTileToDelete.AddToGridTiles();
+            floatingTileToDelete.GetComponent<TileMove>().AddToGridTiles();
         }
 
         turnDone.Invoke();
     }
 
-    private int SortByHeight(TileMove tile1, TileMove tile2)
+    private List<GameObject> SortFloatingTiles(List<GameObject> floatingTilesToAddToGrid, Direction direction)
+    {
+        if (direction == Direction.Down)
+        {
+            floatingTilesToAddToGrid.Sort(SortByRows);
+            return floatingTilesToAddToGrid;
+        }
+
+        else if (direction == Direction.Left)
+        {
+            floatingTilesToAddToGrid.Sort(SortByColumnsLeft);
+            return floatingTilesToAddToGrid;
+        }
+
+        else if (direction == Direction.Right)
+        {
+            floatingTilesToAddToGrid.Sort(SortByColumnsRight);
+            return floatingTilesToAddToGrid;
+        }
+
+        return null;
+    }
+
+    private int SortByRows(GameObject tile1, GameObject tile2)
     {
         int tile1Height = (int) tile1.gameObject.transform.position.y;
-        int tile2Height = (int)tile2.gameObject.transform.position.y;
+        int tile2Height = (int) tile2.gameObject.transform.position.y;
+
+        return tile1Height.CompareTo(tile2Height);
+    }
+
+    private int SortByColumnsLeft(GameObject tile1, GameObject tile2)
+    {
+        int tile1Height = (int)tile1.gameObject.transform.position.x;
+        int tile2Height = (int)tile2.gameObject.transform.position.x;
+
+        return tile1Height.CompareTo(tile2Height);
+    }
+
+    private int SortByColumnsRight(GameObject tile1, GameObject tile2)
+    {
+        int tile1Height = (int)tile1.gameObject.transform.position.x;
+        int tile2Height = (int)tile2.gameObject.transform.position.x;
 
         return tile1Height.CompareTo(tile2Height);
     }

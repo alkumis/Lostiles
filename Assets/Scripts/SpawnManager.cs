@@ -1,32 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
     public GameObject[] tiles;
 
-    public IntVariable activeFloatingTiles;
-
     public int spawnTimer;
     public int spawnMin;
     public int spawnMax;
+
+    public GameObjectRuntimeSet floatingTileRuntimeSet;
 
     private void Awake()
     {
         RandomizeSpawnTime();
     }
 
-    private void OnDisable()
-    {
-        activeFloatingTiles.SetValue(0);
-    }
-
     public void Tick()
     {
         spawnTimer -= 1;
 
-        if(activeFloatingTiles.Value == 0)
+        if(floatingTileRuntimeSet.Items.Count <= 0)
         {
             spawnTimer = 0;
         }

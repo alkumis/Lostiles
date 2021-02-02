@@ -12,31 +12,45 @@ public class GridManager : MonoBehaviour
 
     public GridTiles gridTiles;
 
+    public GameObjectRuntimeSet gridTileRuntimeSet;
+
     private void OnDisable()
     {
-        gridTiles.tileList = new SortedList<int, SortedList<int, GridTile>>();
+        gridTiles.tileList = new Dictionary<int, Dictionary<int, GridTile>>();
     }
 
-    public void AddToGridTiles(int column, int row, GridTile gridTile)
+    private void Start()
     {
+        foreach(var tile in gridTileRuntimeSet.Items)
+        {
+            AddToGridTiles(tile);
+        }
+    }
+
+    public void AddToGridTiles(GameObject tile)
+    {
+        Debug.Log("I was called!");
+
+        int column = (int)tile.transform.position.x;
+        int row = (int)tile.transform.position.y;
+        var gridTile= new GridTile(tile.GetComponent<TileMove>().tileColour, tile);
+
         if (gridTiles.tileList.ContainsKey(column))
         {
             gridTiles.tileList[column].Add(row, gridTile);
-            CheckMatches(column, row, gridTile.Colour);
             return;
         }
 
         else
         {
-            gridTiles.tileList.Add(column, new SortedList<int, GridTile>() { { row, gridTile } });
-            CheckMatches(column, row, gridTile.Colour);
+            gridTiles.tileList.Add(column, new Dictionary<int, GridTile>() { { row, gridTile } });
             return;
         }
     }
 
-    private void CheckMatches(int column, int row, Colour colourToCheck)
+    public void CheckMatches(int column, int row, GridTile gridTile)
     {
-        Debug.Log("CheckMatches column " + column + " row " + row + " colour " + colourToCheck);
+        Colour colourToCheck = gridTile.Colour;
 
         var matchingRows = new ArrayList
         {

@@ -840,7 +840,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4255438102449709356, guid: fd19e489cfb6343d8a5df98490151228, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 4255438102449709356, guid: fd19e489cfb6343d8a5df98490151228, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1325,10 +1325,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1458659518}
     m_Modifications:
-    - target: {fileID: 1961962293636783365, guid: 2f730fb3b8fbc407bbab8ba6a3f33409, type: 3}
-      propertyPath: fadeDuration
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3401356752530030318, guid: 2f730fb3b8fbc407bbab8ba6a3f33409, type: 3}
       propertyPath: m_RootOrder
       value: 7
@@ -1376,10 +1372,6 @@ PrefabInstance:
     - target: {fileID: 7256189164501159879, guid: 2f730fb3b8fbc407bbab8ba6a3f33409, type: 3}
       propertyPath: m_Name
       value: Green (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 7256189164501159879, guid: 2f730fb3b8fbc407bbab8ba6a3f33409, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f730fb3b8fbc407bbab8ba6a3f33409, type: 3}
@@ -3486,6 +3478,10 @@ PrefabInstance:
       propertyPath: sideEase
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 2856664498571547338, guid: 3811ff6be5fc546cd9e44d2e4eafdfac, type: 3}
+      propertyPath: gridTiles
+      value: 
+      objectReference: {fileID: 11400000, guid: 52c37599e72604d0885ed2d3f48d0fd0, type: 2}
     - target: {fileID: 4935112578952643008, guid: 3811ff6be5fc546cd9e44d2e4eafdfac, type: 3}
       propertyPath: m_Name
       value: MovementManager
