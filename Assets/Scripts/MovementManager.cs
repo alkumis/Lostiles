@@ -56,173 +56,88 @@ public class MovementManager : MonoBehaviour
 
     IEnumerator MoveAll(Direction direction)
     {
-        var tempGridTiles = new GridTiles();
-
-        foreach (var column in gridTiles.tileList.Keys)
-        {
-            foreach (var row in gridTiles.tileList[column].Keys)
-            {
-                if (!tempGridTiles.tileList.ContainsKey(column))
-                {
-                    tempGridTiles.tileList.Add(column, new Dictionary<int, GridTile>() { { row, gridTiles.tileList[column][row] } });
-                }
-                else
-                {
-                    tempGridTiles.tileList[column].Add(row, gridTiles.tileList[column][row]);
-                }
-            }
-        }
-
-        var floatingTileList = floatingTileRuntimeSet.Items;
-        floatingTileList = SortFloatingTiles(floatingTileList, direction);
-
-        foreach (var floatingTile in floatingTileList)
-        {
-            tempGridTiles = floatingTile.GetComponent<TileMove>().MoveSide(direction, moveSideDuration, sideEase, tempGridTiles);
-        }
+        MoveSideAll(direction);
 
         yield return new WaitForSeconds(moveSideDuration);
 
-        var floatingTilesToAddToGrid = CheckAndMoveDownAll(moveDownDuration, rushEase);
-
-        yield return new WaitForSeconds(moveDownDuration);
-
-        if (floatingTilesToAddToGrid != null)
-        {
-            if (floatingTilesToAddToGrid.Count > 0)
-            {
-                AddFloatingTilesToGrid(floatingTilesToAddToGrid);
-            }
-        }
-
-        if(!turnAvailable.Value)
-        {
-            turnDone.Invoke();
-        }
-    }
-
-    IEnumerator RushAll()
-    {
-        CheckAndMoveDownAll(moveDownDuration, downEase);
-
-        float tempMoveDownDuration = moveDownDuration;
-
-        while (turnAvailable.Value == false)
-        {
-            var floatingTilesToAddToGrid = CheckAndMoveDownAll(tempMoveDownDuration, rushEase);
-
-            yield return new WaitForSeconds(tempMoveDownDuration);
-
-            if(floatingTilesToAddToGrid != null)
-            {
-                if(floatingTilesToAddToGrid.Count > 0)
-                {
-                    AddFloatingTilesToGrid(floatingTilesToAddToGrid);
-                }
-            }
-
-            tempMoveDownDuration *= moveDownAcceleration;
-        }
+        DownCheckAll();
 
         if (!turnAvailable.Value)
         {
-            turnDone.Invoke();
-        }
-    }
+            MoveDownAll(moveDownDuration, downEase);
 
-    private List<GameObject> CheckAndMoveDownAll(float duration, Ease ease)
-    {
-        List<GameObject> floatingTilesToAddToGrid = new List<GameObject>();
+            yield return new WaitForSeconds(moveDownDuration);
 
-        foreach (var floatingTile in floatingTileRuntimeSet.Items)
-        {
-            var moveCheck = floatingTile.GetComponent<TileMove>().DownCheck();
-
-            if (moveCheck != null)
-            {
-                floatingTilesToAddToGrid.Add(moveCheck);
-            }
-        }
-
-        if (floatingTilesToAddToGrid.Count > 0)
-        {
-            return floatingTilesToAddToGrid;
-        }
-
-        foreach (var floatingTile in floatingTileRuntimeSet.Items)
-        {
-            var moveCheck = floatingTile.GetComponent<TileMove>().MoveDown(duration, ease);
-
-            if (moveCheck != null)
-            {
-                floatingTilesToAddToGrid.Add(moveCheck);
-            }
-        }
-
-        if (floatingTilesToAddToGrid.Count > 0)
-        {
-            return floatingTilesToAddToGrid;
-        }
-
-        return null;
-    }
-
-    private void AddFloatingTilesToGrid(List<GameObject> floatingTilesToAddToGrid)
-    {
-        floatingTilesToAddToGrid = SortFloatingTiles(floatingTilesToAddToGrid, Direction.Down);
-
-        foreach (var floatingTileToDelete in floatingTilesToAddToGrid)
-        {
-            floatingTileToDelete.GetComponent<TileMove>().AddToGridTiles();
+            DownCheckAll();
         }
 
         turnDone.Invoke();
     }
 
-    private List<GameObject> SortFloatingTiles(List<GameObject> floatingTilesToAddToGrid, Direction direction)
+    IEnumerator RushAll()
     {
-        if (direction == Direction.Down)
-        {
-            floatingTilesToAddToGrid.Sort(SortByRows);
-            return floatingTilesToAddToGrid;
-        }
+        MoveDownAll(moveDownDuration, downEase);
 
-        else if (direction == Direction.Left)
-        {
-            floatingTilesToAddToGrid.Sort(SortByColumnsLeft);
-            return floatingTilesToAddToGrid;
-        }
+        yield return new WaitForSeconds(moveDownDuration);
 
-        else if (direction == Direction.Right)
-        {
-            floatingTilesToAddToGrid.Sort(SortByColumnsRight);
-            return floatingTilesToAddToGrid;
-        }
+        DownCheckAll();
 
-        return null;
+        float tempMoveDownDuration = moveDownDuration;
+
+        while (turnAvailable.Value == false)
+        {
+            MoveDownAll(tempMoveDownDuration, rushEase);
+
+            yield return new WaitForSeconds(tempMoveDownDuration);
+
+            DownCheckAll();
+
+            tempMoveDownDuration *= moveDownAcceleration;
+        }
     }
 
-    private int SortByRows(GameObject tile1, GameObject tile2)
+    private void MoveSideAll(Direction direction)
     {
-        int tile1Height = (int) tile1.gameObject.transform.position.y;
-        int tile2Height = (int) tile2.gameObject.transform.position.y;
+        var tempGridTiles = ScriptableObject.CreateInstance<GridTiles>();
+        tempGridTiles.Copy(gridTiles);
 
-        return tile1Height.CompareTo(tile2Height);
+        floatingTileRuntimeSet.Sort(direction);
+
+        foreach (var floatingTile in floatingTileRuntimeSet.Items)
+        {
+            tempGridTiles = floatingTile.GetComponent<TileMove>().MoveSide(direction, moveSideDuration, sideEase, tempGridTiles);
+        }
     }
 
-    private int SortByColumnsLeft(GameObject tile1, GameObject tile2)
+    private void MoveDownAll(float duration, Ease ease)
     {
-        int tile1Height = (int)tile1.gameObject.transform.position.x;
-        int tile2Height = (int)tile2.gameObject.transform.position.x;
+        floatingTileRuntimeSet.Sort(Direction.Down);
 
-        return tile1Height.CompareTo(tile2Height);
+        for (int i = floatingTileRuntimeSet.Items.Count - 1; i >= 0; i--)
+        {
+            floatingTileRuntimeSet.Items[i].GetComponent<TileMove>().MoveDown(duration, ease);
+        }
     }
 
-    private int SortByColumnsRight(GameObject tile1, GameObject tile2)
+    private void DownCheckAll()
     {
-        int tile1Height = (int)tile1.gameObject.transform.position.x;
-        int tile2Height = (int)tile2.gameObject.transform.position.x;
+        bool anyBlocked = false;
 
-        return tile1Height.CompareTo(tile2Height);
+        floatingTileRuntimeSet.Sort(Direction.Down);
+
+        for (int i = floatingTileRuntimeSet.Items.Count - 1; i >= 0; i--)
+        {
+            bool blockedCheck = floatingTileRuntimeSet.Items[i].GetComponent<TileMove>().DownCheck();
+
+            if (blockedCheck)
+            {
+                anyBlocked = true;
+            }
+        }
+
+        if (anyBlocked)
+        {
+            turnDone.Invoke();
+        }
     }
 }

@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1657168841106565329}
   - component: {fileID: 8496090985245180145}
-  - component: {fileID: -7425518506951444455}
   - component: {fileID: 1321955671443396062}
+  - component: {fileID: 8076035062389212682}
   m_Layer: 0
   m_Name: GridManager
   m_TagString: Untagged
@@ -47,34 +47,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridTiles: {fileID: 11400000, guid: 52c37599e72604d0885ed2d3f48d0fd0, type: 2}
   gridTileRuntimeSet: {fileID: 11400000, guid: 4f34bf61275794c11a547f1d9f7b0f13, type: 2}
---- !u!114 &-7425518506951444455
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5902122563563029722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b79fe3f9ce9714093877eb64389fe1d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Event: {fileID: 11400000, guid: af6ef22859d6849b1b4a5126b111cc31, type: 2}
-  Response:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8496090985245180145}
-        m_TargetAssemblyTypeName: GridManager, Assembly-CSharp
-        m_MethodName: CheckMatches
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &1321955671443396062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,6 +67,34 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: GridManager, Assembly-CSharp
         m_MethodName: AddToGridTiles
         m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &8076035062389212682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5902122563563029722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b64d0fbff09f24a37bf35394af7c5c55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: aa3fb62ace7ad4ac8a3db761ea94c132, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8496090985245180145}
+        m_TargetAssemblyTypeName: GridManager, Assembly-CSharp
+        m_MethodName: CheckMatches
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

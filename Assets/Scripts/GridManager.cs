@@ -14,6 +14,10 @@ public class GridManager : MonoBehaviour
 
     public GameObjectRuntimeSet gridTileRuntimeSet;
 
+    private GameObjectRuntimeSet gridTilesToCheck;
+
+    bool checkTiles = false;
+
     private void OnDisable()
     {
         gridTiles.tileList = new Dictionary<int, Dictionary<int, GridTile>>();
@@ -21,19 +25,27 @@ public class GridManager : MonoBehaviour
 
     private void Start()
     {
-        foreach(var tile in gridTileRuntimeSet.Items)
+        gridTilesToCheck = ScriptableObject.CreateInstance<GameObjectRuntimeSet>();
+
+        foreach (var tile in gridTileRuntimeSet.Items)
         {
             AddToGridTiles(tile);
         }
+
+        checkTiles = true;
     }
 
     public void AddToGridTiles(GameObject tile)
     {
-        Debug.Log("I was called!");
-
         int column = (int)tile.transform.position.x;
         int row = (int)tile.transform.position.y;
-        var gridTile= new GridTile(tile.GetComponent<TileMove>().tileColour, tile);
+        var gridTile = new GridTile(tile.GetComponent<TileMove>().tileColour, tile);
+
+        if (checkTiles)
+        {
+            gridTilesToCheck.Add(tile);
+            Debug.Log("gridTilesToCheck + 1");
+        }
 
         if (gridTiles.tileList.ContainsKey(column))
         {
@@ -48,46 +60,85 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void CheckMatches(int column, int row, GridTile gridTile)
+    public void CheckMatches()
     {
-        Colour colourToCheck = gridTile.Colour;
+        Debug.Log("Check matches is being called");
 
-        var matchingRows = new ArrayList
+        Debug.Log("gridTilesToCheck Count = " + gridTilesToCheck.Items.Count);
+
+        if(gridTilesToCheck.Items.Count <= 0)
         {
-            row
-        };
+            Debug.Log("Nothing to check");
+            return;
+        }
 
-        var matchingColumns = new ArrayList
+        for (int i = gridTilesToCheck.Items.Count - 1; i >= 0; i--)
         {
-            column
-        };
+            var tile = gridTilesToCheck.Items[i];
 
-        matchingRows = GridCheck(Direction.Up, matchingRows, column, row, colourToCheck);
-        matchingRows = GridCheck(Direction.Down, matchingRows, column, row, colourToCheck);
-        matchingColumns = GridCheck(Direction.Left, matchingColumns, column, row, colourToCheck);
-        matchingColumns = GridCheck(Direction.Right, matchingColumns, column, row, colourToCheck);
+            if (!gridTileRuntimeSet.Items.Contains(tile))
+            {
+                Debug.Log("Tile is floating now");
+                continue;
+            }
 
-        var tilesToFloat = new ArrayList();
+            int column = (int)tile.transform.position.x;
+            int row = (int)tile.transform.position.y;
+            var gridTile = new GridTile(tile.GetComponent<TileMove>().tileColour, tile);
 
-        if (matchingColumns.Count >= 3 || matchingRows.Count >= 3)
-        {
-            foreach (int r in matchingRows)
+            Colour colourToCheck = gridTile.Colour;
+
+            var matchingRows = new ArrayList
             {
-                StartCoroutine(gridTiles.tileList[column][r].Tile.GetComponent<TileMove>().Remove());
-            }
-            foreach (int c in matchingColumns)
+                row
+            };
+
+            var matchingColumns = new ArrayList
             {
-                StartCoroutine(gridTiles.tileList[c][row].Tile.GetComponent<TileMove>().Remove());
-            }
-            foreach (int r in matchingRows)
+                column
+            };
+
+            matchingRows = GridCheck(Direction.Up, matchingRows, column, row, colourToCheck);
+            matchingRows = GridCheck(Direction.Down, matchingRows, column, row, colourToCheck);
+            matchingColumns = GridCheck(Direction.Left, matchingColumns, column, row, colourToCheck);
+            matchingColumns = GridCheck(Direction.Right, matchingColumns, column, row, colourToCheck);
+
+            var tilesToFloat = new ArrayList();
+
+            if (matchingColumns.Count >= 3 || matchingRows.Count >= 3)
             {
-                tilesToFloat = GridCheck(Direction.Up, tilesToFloat, column, r, colourToCheck, CheckingType.Grounding);
-                gridTiles.tileList[column].Remove(r);
-            }
-            foreach (int c in matchingColumns)
-            {
-                tilesToFloat = GridCheck(Direction.Up, tilesToFloat, c, row, colourToCheck, CheckingType.Grounding);
-                gridTiles.tileList[c].Remove(row);
+                foreach (int r in matchingRows)
+                {
+                    var tileToRemove = gridTiles.tileList[column][r].Tile;
+
+                    StartCoroutine(tileToRemove.GetComponent<TileMove>().Remove());
+
+                    if(gridTilesToCheck.Items.Contains(tileToRemove))
+                    {
+                        gridTilesToCheck.Remove(tile);
+                    }
+                }
+                foreach (int c in matchingColumns)
+                {
+                    var tileToRemove = gridTiles.tileList[c][row].Tile;
+
+                    StartCoroutine(tileToRemove.GetComponent<TileMove>().Remove());
+
+                    if (gridTilesToCheck.Items.Contains(tileToRemove))
+                    {
+                        gridTilesToCheck.Remove(tile);
+                    }
+                }
+                foreach (int r in matchingRows)
+                {
+                    tilesToFloat = GridCheck(Direction.Up, tilesToFloat, column, r, colourToCheck, CheckingType.Grounding);
+                    gridTiles.tileList[column].Remove(r);
+                }
+                foreach (int c in matchingColumns)
+                {
+                    tilesToFloat = GridCheck(Direction.Up, tilesToFloat, c, row, colourToCheck, CheckingType.Grounding);
+                    gridTiles.tileList[c].Remove(row);
+                }
             }
         }
     }
@@ -141,7 +192,9 @@ public class GridManager : MonoBehaviour
                             break;
 
                         case (CheckingType.Grounding):
-                            gridTiles.tileList[column][row].Tile.GetComponent<TileMove>().Reactivate();
+                            var tile = gridTiles.tileList[column][row].Tile;
+                            tile.GetComponent<TileMove>().Reactivate();
+                            gridTilesToCheck.Remove(tile);
                             gridTiles.tileList[column].Remove(row);
                             break;
                     }

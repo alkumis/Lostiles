@@ -41,21 +41,12 @@ public class TileMove : MonoBehaviour
         gridTileRuntimeSet.Remove(this.gameObject);
     }
 
-    public void AddToGridTiles(bool justStarted = false)
+    public void AddToGridTiles()
     {
         grounded = true;
         floatingTileRuntimeSet.Remove(this.gameObject);
         gridTileRuntimeSet.Add(this.gameObject);
-        int column = (int)transform.position.x;
-        int row = (int)transform.position.y;
-        var thisTile = new GridTile(tileColour, this.gameObject);
-
         GridAdd.Invoke(this.gameObject);
-
-        if(!justStarted)
-        {
-            CheckMatch.Invoke(column, row, thisTile);
-        }
     }
 
     public GridTiles MoveSide(Direction direction, float duration, Ease ease, GridTiles tempGridTiles)
@@ -73,7 +64,6 @@ public class TileMove : MonoBehaviour
         }
 
         int targetColumn = (int)transform.position.x + modifier;
-
         int targetRow = (int)transform.position.y;
         var gridTile = new GridTile(tileColour, this.gameObject);
 
@@ -108,47 +98,43 @@ public class TileMove : MonoBehaviour
         return tempGridTiles;
     }
 
-    public GameObject DownCheck()
+    public bool DownCheck()
     {
         int targetColumn = (int)transform.position.x;
         int targetRow = (int)transform.position.y - 1;
+        bool blocked = false;
 
-        Debug.Log("I am " + tileColour + " and I am going to MoveCheck for " + targetRow);
+        Debug.Log("I am " + tileColour + " and I am going to DownCheck for " + targetRow);
 
         if (gridTiles.tileList.ContainsKey(targetColumn))
         {
             if (gridTiles.tileList[targetColumn].ContainsKey(targetRow) && !grounded)
             {
-                return this.gameObject;
+                Debug.Log("I am " + tileColour + " and I am grounded!");
+
+                AddToGridTiles();
+                blocked = true;
+                return blocked;
             }
         }
 
-        return null;
+        return blocked;
     }
 
-    public GameObject MoveDown(float duration, Ease ease)
+    public void MoveDown(float duration, Ease ease)
     {
         int targetColumn = (int)transform.position.x;
         int targetRow = (int)transform.position.y - 1;
 
         Debug.Log("I am " + tileColour + " and I am going to MoveDown to " + targetRow);
 
-        Move(targetColumn, targetRow, duration, ease);
-
-        if (gridTiles.tileList.ContainsKey(targetColumn))
-        {
-            if (gridTiles.tileList[targetColumn].ContainsKey(targetRow - 1) && !grounded)
-            {
-                return this.gameObject;
-            }
-        }
-
-        return null;
+        Move(targetColumn, targetRow, duration, ease, true);
     }
 
-    private void Move(int targetColumn, int targetRow, float duration, Ease easing)
+    private void Move(int targetColumn, int targetRow, float duration, Ease easing, bool downCheck = false)
     {
         Vector3 target = new Vector3(targetColumn, targetRow, 0);
+
         transform.DOMove(target, duration, false)
             .SetEase(easing);
     }
@@ -156,7 +142,9 @@ public class TileMove : MonoBehaviour
     public IEnumerator Remove()
     {
         this.GetComponent<SpriteRenderer>().DOColor(Color.clear, fadeDuration);
+
         yield return new WaitForSeconds(fadeDuration);
+
         Destroy(this.gameObject);
     }
 
@@ -164,5 +152,6 @@ public class TileMove : MonoBehaviour
     {
         grounded = false;
         floatingTileRuntimeSet.Add(this.gameObject);
+        gridTileRuntimeSet.Remove(this.gameObject);
     }
 }
