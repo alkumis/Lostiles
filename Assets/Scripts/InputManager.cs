@@ -9,9 +9,6 @@ public class InputManager : MonoBehaviour
 
     public BoolVariable turnAvailable;
 
-    public IntVariable activeFloatingTiles;
-    public IntVariable tilesToMove;
-
     private void Awake()
     {
         playerControls = new PlayerControls();
@@ -26,7 +23,6 @@ public class InputManager : MonoBehaviour
     {
         playerControls.Disable();
         turnAvailable.SetValue(true);
-        tilesToMove.SetValue(0);
     }
 
     private void Start()
@@ -41,7 +37,6 @@ public class InputManager : MonoBehaviour
         if (turnAvailable.Value)
         {
             turnAvailable.SetValue(false);
-            tilesToMove.SetValue(activeFloatingTiles);
             toInvoke.Invoke(direction);
         }
     }

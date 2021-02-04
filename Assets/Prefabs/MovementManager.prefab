@@ -67,6 +67,7 @@ MonoBehaviour:
   sideEase: 5
   downEase: 6
   rushEase: 1
+  gridTiles: {fileID: 11400000, guid: 52c37599e72604d0885ed2d3f48d0fd0, type: 2}
 --- !u!114 &2584201943344110025
 MonoBehaviour:
   m_ObjectHideFlags: 0

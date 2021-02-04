@@ -76,7 +76,13 @@ public class GridManager : MonoBehaviour
         {
             var tile = gridTilesToCheck.Items[i];
 
-            if (!gridTileRuntimeSet.Items.Contains(tile))
+            if(tile == null)
+            {
+                Debug.Log("Tile is destroyed now");
+                continue;
+            }
+
+            if (!tile.GetComponent<TileMove>().grounded)
             {
                 Debug.Log("Tile is floating now");
                 continue;
@@ -112,22 +118,12 @@ public class GridManager : MonoBehaviour
                     var tileToRemove = gridTiles.tileList[column][r].Tile;
 
                     StartCoroutine(tileToRemove.GetComponent<TileMove>().Remove());
-
-                    if(gridTilesToCheck.Items.Contains(tileToRemove))
-                    {
-                        gridTilesToCheck.Remove(tile);
-                    }
                 }
                 foreach (int c in matchingColumns)
                 {
                     var tileToRemove = gridTiles.tileList[c][row].Tile;
 
                     StartCoroutine(tileToRemove.GetComponent<TileMove>().Remove());
-
-                    if (gridTilesToCheck.Items.Contains(tileToRemove))
-                    {
-                        gridTilesToCheck.Remove(tile);
-                    }
                 }
                 foreach (int r in matchingRows)
                 {
@@ -194,7 +190,6 @@ public class GridManager : MonoBehaviour
                         case (CheckingType.Grounding):
                             var tile = gridTiles.tileList[column][row].Tile;
                             tile.GetComponent<TileMove>().Reactivate();
-                            gridTilesToCheck.Remove(tile);
                             gridTiles.tileList[column].Remove(row);
                             break;
                     }

@@ -11,11 +11,8 @@ public class TileMove : MonoBehaviour
     public float fadeDuration;
 
     public UnityEvent<GameObject> GridAdd;
-    public UnityEvent<int, int, GridTile> CheckMatch;
 
     public bool grounded = false;
-
-    public IntVariable tilesToEndMove;
 
     public GridTiles gridTiles;
 
