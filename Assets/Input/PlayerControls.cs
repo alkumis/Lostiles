@@ -41,6 +41,22 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""TouchContact"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""718e5508-d184-41f3-8405-acf0393a0626"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""TouchPosition"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""34e43beb-e99d-494b-86b7-ecb5cc1245ce"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -197,6 +213,28 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""action"": ""MoveRight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2bc23e80-9760-4f05-99d5-ec7e05921519"",
+                    ""path"": ""<Touchscreen>/primaryTouch/press"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TouchContact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f31e41a9-0973-42f3-8196-a774ddc2ac6c"",
+                    ""path"": ""<Touchscreen>/primaryTouch/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TouchPosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -208,6 +246,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         m_TileControls_MoveLeft = m_TileControls.FindAction("MoveLeft", throwIfNotFound: true);
         m_TileControls_MoveRight = m_TileControls.FindAction("MoveRight", throwIfNotFound: true);
         m_TileControls_Rush = m_TileControls.FindAction("Rush", throwIfNotFound: true);
+        m_TileControls_TouchContact = m_TileControls.FindAction("TouchContact", throwIfNotFound: true);
+        m_TileControls_TouchPosition = m_TileControls.FindAction("TouchPosition", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -260,6 +300,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
     private readonly InputAction m_TileControls_MoveLeft;
     private readonly InputAction m_TileControls_MoveRight;
     private readonly InputAction m_TileControls_Rush;
+    private readonly InputAction m_TileControls_TouchContact;
+    private readonly InputAction m_TileControls_TouchPosition;
     public struct TileControlsActions
     {
         private @PlayerControls m_Wrapper;
@@ -267,6 +309,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         public InputAction @MoveLeft => m_Wrapper.m_TileControls_MoveLeft;
         public InputAction @MoveRight => m_Wrapper.m_TileControls_MoveRight;
         public InputAction @Rush => m_Wrapper.m_TileControls_Rush;
+        public InputAction @TouchContact => m_Wrapper.m_TileControls_TouchContact;
+        public InputAction @TouchPosition => m_Wrapper.m_TileControls_TouchPosition;
         public InputActionMap Get() { return m_Wrapper.m_TileControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -285,6 +329,12 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                 @Rush.started -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnRush;
                 @Rush.performed -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnRush;
                 @Rush.canceled -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnRush;
+                @TouchContact.started -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnTouchContact;
+                @TouchContact.performed -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnTouchContact;
+                @TouchContact.canceled -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnTouchContact;
+                @TouchPosition.started -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnTouchPosition;
+                @TouchPosition.performed -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnTouchPosition;
+                @TouchPosition.canceled -= m_Wrapper.m_TileControlsActionsCallbackInterface.OnTouchPosition;
             }
             m_Wrapper.m_TileControlsActionsCallbackInterface = instance;
             if (instance != null)
@@ -298,6 +348,12 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                 @Rush.started += instance.OnRush;
                 @Rush.performed += instance.OnRush;
                 @Rush.canceled += instance.OnRush;
+                @TouchContact.started += instance.OnTouchContact;
+                @TouchContact.performed += instance.OnTouchContact;
+                @TouchContact.canceled += instance.OnTouchContact;
+                @TouchPosition.started += instance.OnTouchPosition;
+                @TouchPosition.performed += instance.OnTouchPosition;
+                @TouchPosition.canceled += instance.OnTouchPosition;
             }
         }
     }
@@ -307,5 +363,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         void OnMoveLeft(InputAction.CallbackContext context);
         void OnMoveRight(InputAction.CallbackContext context);
         void OnRush(InputAction.CallbackContext context);
+        void OnTouchContact(InputAction.CallbackContext context);
+        void OnTouchPosition(InputAction.CallbackContext context);
     }
 }
