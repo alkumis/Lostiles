@@ -60,8 +60,6 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   turnAvailable: {fileID: 11400000, guid: 1d16d1cfe70f148ac838950863398ee3, type: 2}
-  activeFloatingTiles: {fileID: 11400000, guid: 4e616a0e50fd64556af01165d3c71a40, type: 2}
-  tilesToMove: {fileID: 11400000, guid: c9a37a3d06fd648ab927098cda64410d, type: 2}
 --- !u!114 &7956275362515457980
 MonoBehaviour:
   m_ObjectHideFlags: 0
