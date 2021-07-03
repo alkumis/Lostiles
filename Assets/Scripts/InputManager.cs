@@ -16,8 +16,8 @@ public class InputManager : MonoBehaviour
     Vector2 touchEndPos = Vector2.zero;
     float touchEndTime = 0;
 
-    public static float swipeThreshold = 1f;
-    public static float timeThreshold = 0.3f;
+    const float swipeThreshold = 0.17f;
+    const float timeLimit = 0.3f;
 
     private void Awake()
     {
@@ -60,19 +60,21 @@ public class InputManager : MonoBehaviour
 
     void StartTouchPrimary(InputAction.CallbackContext context)
     {
+        Debug.Log("LOSTILES: TOUCH HAS STARTED");
         touchStartPos = playerControls.TileControls.TouchPosition.ReadValue<Vector2>();
         touchStartTime = (float) context.startTime;
     }
 
     void EndTouchPrimary(InputAction.CallbackContext context)
     {
+        Debug.Log("LOSTILES: TOUCH HAS ENDED");
         touchEndPos = playerControls.TileControls.TouchPosition.ReadValue<Vector2>();
         touchEndTime = (float) context.time;
 
         Vector2 touchPosDelta = touchEndPos - touchStartPos;
         float touchTimeDelta = touchEndTime - touchStartTime;
 
-        if (touchTimeDelta > timeThreshold)
+        if (touchTimeDelta < timeLimit)
         {
             if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalMove())
             {
